@@ -23,11 +23,14 @@ namespace SearchService.services
         public async Task<List<Item>> GetItemForSearchDB()
         {
             var lastupdated = await DB.Find<Item,string>()
-            .Sort(x => x.Descending(x => x.UpdatedAt))
+            .Sort(x => x.Ascending(x => x.UpdatedAt))
             .Project(x => x.UpdatedAt.ToString())
             .ExecuteFirstAsync();
 
-            return await _httpClient.GetFromJsonAsync<List<Item>>(_config["AuctionServiceUrl"]+"/api/auctions?date=" + lastupdated);
+            Console.WriteLine("Last Date is : " + lastupdated);
+
+            // return await _httpClient.GetFromJsonAsync<List<Item>>(_config["AuctionServiceUrl"]+"/api/auctions?date=" + lastupdated);
+            return await _httpClient.GetFromJsonAsync<List<Item>>(_config["AuctionServiceUrl"]+"/api/auctions" );
         }
     }
 }

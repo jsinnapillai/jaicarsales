@@ -1,6 +1,8 @@
 using System.Net;
+using MassTransit;
 using Polly;
 using Polly.Extensions.Http;
+using SearchService;
 using SearchService.Data;
 using SearchService.services;
 
@@ -10,9 +12,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddHttpClient<AuctionServiceHttpClient>().AddPolicyHandler(GetPolicy());
+builder.Services.AddHttpClient<AuctionServiceHttpClient>();//.AddPolicyHandler(GetPolicy());
+
+// Configured masstransit
+builder.Services.AddMassTransit(x =>{
+  x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
+
+  x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search",false));
+
+  
+  x.UsingRabbitMq((context,cfg) => {
+
+    cfg.ReceiveEndpoint("search-auction-created",e => {
+      e.UseMessageRetry(r=> r.Interval(5,5));
+      e.ConfigureConsumer<AuctionCreatedConsumer>(context);
+    });
+
+    cfg.ConfigureEndpoints(context);
+  });
+});
+
+
 // builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -49,8 +72,8 @@ catch (System.Exception e)
 app.Run();
 
 
-static IAsyncPolicy<HttpResponseMessage> GetPolicy()
-=> HttpPolicyExtensions
-    .HandleTransientHttpError()
-    .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
-    .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
+// static IAsyncPolicy<HttpResponseMessage> GetPolicy()
+// => HttpPolicyExtensions
+//     .HandleTransientHttpError()
+//     .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
+//     .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
