@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Contracts;
 using MassTransit;
 
-namespace AuctionService.Consumers
+namespace AuctionService
 {
     public class AuctionCreatedFaultConsumer : IConsumer<Fault<AuctionCreated>>
     {

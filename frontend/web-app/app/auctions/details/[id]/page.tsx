@@ -1,3 +1,4 @@
+
 import { getDetailedViewData } from "@/app/actions/auctionActions";
 import React from "react";
 import Heading from "../../componenets/Heading";

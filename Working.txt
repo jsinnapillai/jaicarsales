@@ -179,3 +179,67 @@ docker compose build search-svc
 docker compose up -d
 
 docker compose build identity-svc
+
+docker compose build gateway-svc
+
+
+
+
+-------------------------NEXT.js---------------------
+
+npm packages for 
+
+npm install react-icons --save
+
+npm install react-countdown 
+
+
+Flowbite component
+
+npm install flowbite
+
+npm install zustand query-string
+
+
+next auth
+
+npm install next-auth@beta
+
+npx auth secret
+
+-------------------install reachook form
+
+npm install react-hook-form react-datepicker
+
+npm install react-hot-toast
+
+
+
+--------------bidding Service-------------------------
+
+dotnet new webapi --use-controllers -o src/BiddingService
+
+dotnet sln add src/BiddingService
+
+mongodb.entities
+Microsoft.AspnetCore.Authentication.JwtBearer
+masstransit.rabbitmq
+automapper
+
+
+dotnet add reference ../../src/Contracts
+
+
+
+----------------------------GRPC installation server ( auction Service ---------------------------
+nuget packages
+grpc.aspnetcore
+
+
+
+vscode extension 
+vscode-proto3
+
+
+
+----------------------------GRPC installation client side  ( bidding Service ---------------------------

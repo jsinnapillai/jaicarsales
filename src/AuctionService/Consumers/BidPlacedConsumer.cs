@@ -6,7 +6,7 @@ using AuctionService.Data;
 using Contracts;
 using MassTransit;
 
-namespace AuctionService.Consumers
+namespace AuctionService
 {
     public class BidPlacedConsumer : IConsumer<BitPlaced>
     {
@@ -19,9 +19,11 @@ namespace AuctionService.Consumers
         public async Task Consume(ConsumeContext<BitPlaced> context)
         {
             Console.WriteLine("---> Consuming Bit placed");
-            var auction = await _dBContext.Auctions.FindAsync(context.Message.AuctionId);
+            var auction = await _dBContext.Auctions.FindAsync(Guid.Parse(context.Message.AuctionId));
 
-            if(auction.CurrentHighBid == null || context.Message.BitStatus.Contains("Accepted")
+           Console.WriteLine("---> Consuming Bit placed rom AuctionService ontext.Message.BitStatus",context.Message.BidStatus);
+
+            if(auction.CurrentHighBid == null || context.Message.BidStatus.Contains("Accepted")
             && context.Message.Amount > auction.CurrentHighBid
             )
             {

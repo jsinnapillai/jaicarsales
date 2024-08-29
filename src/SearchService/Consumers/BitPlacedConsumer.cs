@@ -7,7 +7,7 @@ using MassTransit;
 using MongoDB.Entities;
 using SearchService.model;
 
-namespace SearchService.Consumers
+namespace SearchService
 {
     public class BitPlacedConsumer : IConsumer<BitPlaced>
     {
@@ -15,9 +15,18 @@ namespace SearchService.Consumers
         {
            Console.WriteLine(" --- > Conuming Bit placed from Search Service");
 
+           
+
            var auction = await DB.Find<Item>().OneAsync(context.Message.AuctionId);
 
-           if( context.Message.BitStatus.Contains("Accepted")
+            Console.WriteLine(" --- > Conuming Bid placed from Search Service auction.CurrentHighBid"+ auction.CurrentHighBid);
+            Console.WriteLine(" --- > Conuming Bid placed from Search Service context.Message.Amount"+ context.Message.Amount);
+            Console.WriteLine(" --- > Conuming Bid placed from Search Service  context.Message.BidStatus"+  context.Message.BidStatus);
+
+
+
+            if (auction.CurrentHighBid == null 
+            || context.Message.BidStatus.Contains("Accepted")
            && context.Message.Amount > auction.CurrentHighBid
            )
            {

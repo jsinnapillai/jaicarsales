@@ -15,33 +15,33 @@ builder.Services.AddControllers();
 // builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddHttpClient<AuctionServiceHttpClient>();//.AddPolicyHandler(GetPolicy());
+builder.Services.AddHttpClient<AuctionServiceHttpClient>().AddPolicyHandler(GetPolicy());
 
 // Configured masstransit
-builder.Services.AddMassTransit(x =>{
-  x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
 
-  x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search",false));
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
 
-  
-  x.UsingRabbitMq((context,cfg) => {
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h =>
+        {
+            h.Username(builder.Configuration.GetValue("RabbitMQ:Username", "guest")!);
+            h.Password(builder.Configuration.GetValue("RabbitMQ:Password", "guest")!);
+        });
 
-    cfg.ReceiveEndpoint("search-auction-created",e => {
-      e.UseMessageRetry(r=> r.Interval(5,5));
-      e.ConfigureConsumer<AuctionCreatedConsumer>(context);
+        cfg.ReceiveEndpoint("search-auction-created", e =>
+        {
+            e.UseMessageRetry(r => r.Interval(5,5));
+            
+            e.ConfigureConsumer<AuctionCreatedConsumer>(context);
+        });
+
+        cfg.ConfigureEndpoints(context);
     });
-
-    // Configuring Rabbitmq from the other machine or anywhere
-    cfg.Host(builder.Configuration["RabbitMQ:Host"],"/", host => {
-      host.Username(builder.Configuration.GetValue("RabbitMQ:Username","guest"));
-      host.Password(builder.Configuration.GetValue("RabbitMQ:Password","guest"));
-
-    });    
-
-    cfg.ConfigureEndpoints(context);
-  });
 });
-
 
 // builder.Services.AddSwaggerGen();
 
@@ -79,8 +79,8 @@ catch (System.Exception e)
 app.Run();
 
 
-// static IAsyncPolicy<HttpResponseMessage> GetPolicy()
-// => HttpPolicyExtensions
-//     .HandleTransientHttpError()
-//     .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
-//     .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
+static IAsyncPolicy<HttpResponseMessage> GetPolicy()
+=> HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
+    .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
